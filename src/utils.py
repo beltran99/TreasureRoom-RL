@@ -90,7 +90,7 @@ class GIF_generator:
         images = []
         for img in onlyfiles:
             images.append(imageio.v2.imread(os.path.join(self.images_path, img)))
-        imageio.mimsave(self.gif_name, images)
+        imageio.mimsave(self.gif_name, images, fps=4)
 
 
 def atoi(text):

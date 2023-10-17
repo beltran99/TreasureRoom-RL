@@ -5,7 +5,7 @@ from utils import GIF_generator
 
 def main():
     N = 5
-    n_iterations = 500
+    n_iterations = 100
     env = TreasureRoom(N, verbose=0)
     q_learner = QLearner(env=env,
                          n_iterations=n_iterations,
@@ -13,7 +13,8 @@ def main():
                          learning_rate=0.1,
                          discount_factor=0.99,
                          epsilon=0.1,
-                         render_text_file=True)
+                         render_mode="gui",
+                         render_text_file=False)
 
     # train ###
     experiment_name = "exp1_train"

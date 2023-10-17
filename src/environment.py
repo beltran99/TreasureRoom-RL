@@ -2,6 +2,8 @@ import numpy as np
 from gym import Env
 from gym.spaces import Discrete, Box
 
+import pygame
+
 from pathlib import Path
 abs_path = Path(__file__).parent
 
@@ -49,6 +51,25 @@ class TreasureRoom(Env):
         self.episode_count = 0
         self.timestep = 0
         self.room = self.__get_room__()
+
+        # pygame gui utils
+        self.fps = 4
+        self.window_size = (min(64 * N, 512), min(64 * N, 512))
+        self.cell_size = (
+            self.window_size[0] // self.N,
+            self.window_size[1] // self.N,
+        )
+        self.window_surface = None
+        self.clock = None
+
+        self.poison_img = None
+        self.wardrobe_img = None
+        self.agent_img = None
+        self.treasure_img = None
+        self.empty_cell_img = None
+        self.win_img = None
+        self.lose_img = None
+
 
     def step(self, action):
 
@@ -105,28 +126,117 @@ class TreasureRoom(Env):
         return state
 
     def render(self, mode='text', **kwargs):
-        # print timestep
-        print(f'\nEpisode {self.episode_count}')
-        print(f'Timestep {self.timestep}')
 
-        # get current room disposition
-        self.room = self.__get_room__()
+        if mode == 'text':
+            # print timestep
+            print(f'\nEpisode {self.episode_count}')
+            print(f'Timestep {self.timestep}')
 
-        # display upper separators
-        self.print_separators()
-        print()
+            # get current room disposition
+            self.room = self.__get_room__()
 
-        # display room content
-        for row in range(self.room.shape[0]):
-            print('|', end='')
-            for column in range(self.room.shape[1]):
-                element = self.room[row][column]
-                self.print_element(element)
+            # display upper separators
+            self.print_separators()
             print()
 
-        # display lower separators
-        self.print_separators()
-        print()
+            # display room content
+            for row in range(self.room.shape[0]):
+                print('|', end='')
+                for column in range(self.room.shape[1]):
+                    element = self.room[row][column]
+                    self.print_element(element)
+                print()
+
+            # display lower separators
+            self.print_separators()
+            print()
+        elif mode == 'gui':
+            self.render_gui()
+
+    def render_gui(self):
+        if self.window_surface is None:
+            pygame.init()
+            pygame.display.init()
+            pygame.display.set_caption("Treasure Room")
+            self.window_surface = pygame.display.set_mode(self.window_size)
+
+        assert (
+            self.window_surface is not None
+        ), "Something went wrong with pygame. This should never happen."
+
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
+
+        if self.poison_img is None:
+            file_name = abs_path / "../img/skull_and_crossbones.png"
+            self.poison_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
+        if self.wardrobe_img is None:
+            file_name = abs_path / "../img/construction.png"
+            self.wardrobe_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
+        if self.agent_img is None:
+            file_name = abs_path / "../img/man-walking.png"
+            self.agent_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
+        if self.treasure_img is None:
+            file_name = abs_path / "../img/moneybag.png"
+            self.treasure_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
+        if self.empty_cell_img is None:
+            file_name = abs_path / "../img/white_large_square.png"
+            self.empty_cell_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
+        if self.win_img is None:
+            file_name = abs_path / "../img/money_mouth_face.png"
+            self.win_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
+        if self.lose_img is None:
+            file_name = abs_path / "../img/coffin.png"
+            self.lose_img = pygame.transform.scale(
+                pygame.image.load(file_name), self.cell_size
+            )
+
+        caption = "Treasure Room - Episode {}".format(self.episode_count)
+        pygame.display.set_caption(caption)
+
+        for y in range(self.N):
+            for x in range(self.N):
+                pos = (x * self.cell_size[0], y * self.cell_size[1])
+                rect = (*pos, *self.cell_size)
+
+                cell_number = x * self.N + y 
+
+                self.window_surface.blit(self.empty_cell_img, pos)
+                if cell_number == self.wardrobe_pos:
+                    self.window_surface.blit(self.wardrobe_img, pos)
+                elif cell_number == self.poison_pos:
+                    if cell_number == self.agent_pos:
+                        self.window_surface.blit(self.lose_img, pos)
+                    else:
+                        self.window_surface.blit(self.poison_img, pos)
+                elif cell_number == self.treasure_pos:
+                    if cell_number == self.agent_pos:
+                        self.window_surface.blit(self.win_img, pos)
+                    else:
+                        self.window_surface.blit(self.treasure_img, pos)
+                elif cell_number == self.agent_pos:
+                    self.window_surface.blit(self.agent_img, pos)
+
+                pygame.draw.rect(self.window_surface, (180, 200, 230), rect, 1)
+                # filename = "../.tmp/images/animation_episode_{}_step_{}.png".format(self.episode_count, self.timestep)
+                # filename = abs_path / filename
+                # pygame.image.save(self.window_surface, filename)
+
+        pygame.event.pump()
+        pygame.display.update()
+        self.clock.tick(self.fps)
 
     def render_text_file(self, render_path):
         filename = abs_path / ('../.tmp/texts/' + render_path + '_episode_' + str(self.episode_count) + '_step_' + str(self.timestep) + '.txt')

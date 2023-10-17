@@ -3,8 +3,7 @@ import numpy as np
 
 # q-learning: https://www.learndatasci.com/tutorials/reinforcement-q-learning-scratch-python-openai-gym/
 class QLearner:
-    def __init__(self, env, n_iterations, max_steps, learning_rate, discount_factor, epsilon=0.1, render=False,
-                 render_text_file=False):
+    def __init__(self, env, n_iterations, max_steps, learning_rate, discount_factor, epsilon=0.1, render_mode="text", render_text_file=False):
         self.env = env
         self.q_table = np.zeros([env.size, env.action_space.n])
         self.n_iter = n_iterations
@@ -14,7 +13,7 @@ class QLearner:
         self.eps = epsilon
 
         # render options
-        self.render = render
+        self.render_mode = render_mode
         self.render_text_file = render_text_file
 
         # train
@@ -43,8 +42,7 @@ class QLearner:
                 self.rewards.append(-10)
                 self.train_episode_rewards.append(-10)
 
-                if self.render:
-                    self.env.render()
+                self.env.render(self.render_mode)
                 if self.render_text_file:
                     self.env.render_text_file(experiment_name)
 
@@ -57,8 +55,7 @@ class QLearner:
                 self.train_episode_rewards.append(10)
                 self.train_treasure_found += 1
 
-                if self.render:
-                    self.env.render()
+                self.env.render(self.render_mode)
                 if self.render_text_file:
                     self.env.render_text_file(experiment_name)
 
@@ -69,8 +66,7 @@ class QLearner:
             for t in range(self.max_steps_per_iteration):
 
                 timesteps += 1
-                if self.render:
-                    self.env.render()
+                self.env.render(self.render_mode)
                 if self.render_text_file:
                     self.env.render_text_file(experiment_name)
 
@@ -100,8 +96,7 @@ class QLearner:
             self.steps_taken.append(timesteps)
             self.train_episode_rewards.append(episode_reward)
 
-            if self.render:
-                self.env.render()
+            self.env.render(self.render_mode)
             if self.render_text_file:
                 self.env.render_text_file(experiment_name)
 
@@ -126,8 +121,7 @@ class QLearner:
                 self.test_rewards.append(-10)
                 self.test_episode_rewards.append(-10)
 
-                if self.render:
-                    self.env.render()
+                self.env.render(self.render_mode)
                 if self.render_text_file:
                     self.env.render_text_file(experiment_name)
 
@@ -142,8 +136,7 @@ class QLearner:
                 self.test_episode_rewards.append(10)
                 self.test_treasure_found += 1
 
-                if self.render:
-                    self.env.render()
+                self.env.render(self.render_mode)
                 if self.render_text_file:
                     self.env.render_text_file(experiment_name)
 
@@ -152,8 +145,7 @@ class QLearner:
             done = False
             for _ in range(100):
                 timesteps += 1
-                if self.render:
-                    self.env.render()
+                self.env.render(self.render_mode)
                 if self.render_text_file:
                     self.env.render_text_file(experiment_name)
 
@@ -174,8 +166,7 @@ class QLearner:
             self.test_episode_rewards.append(episode_reward)
             self.test_steps_taken.append(timesteps)
 
-            if self.render:
-                self.env.render()
+            self.env.render(self.render_mode)
             if self.render_text_file:
                 self.env.render_text_file(experiment_name)
 
