@@ -20,6 +20,6 @@ And all of the other cells are empty, allowing regular movement of the agent ins
 
 ![example](gifs/animation.png)
 
-The agent may start at any position except for the wardrobe cell. If the agent reaches either the treasure or the poison block, the game is over.
+The agent may start at any position except for the wall cell. If the agent reaches either the treasure or the poison block, the game is over.
 
 The agent receives a reward of +10 if it reaches the treasure block, a reward of −10 if it reaches the poison block and −1 point for the other blocks.
