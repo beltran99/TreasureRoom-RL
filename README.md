@@ -12,7 +12,7 @@ The agent can move from one cell to an adjacent one using one of the following a
 ![room](gifs/episode_1_step_0.png)
 
 The room contains three type of special cells:
-1. A wardrobe that the agent cannot pass through
+1. A wall the agent cannot pass through
 2. A cell with a treasure that represents the goal of the game
 3. A cell with poison
    
